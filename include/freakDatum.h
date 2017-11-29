@@ -2,49 +2,127 @@
 #define __FREAK_DATUM_H__
 
 #include <vector>
+#include <cassert> 
+#include <algorithm>
+#include <cmath>
 
-template <class T>
-class Data { 
-    public :
+namespace freak {
+
+template <class T = float>
+class FreakVector { 
+
+    private :
         std::vector<T> x;
+    public :
+        std::vector<std::size_t> dims;
+
+        typedef void (*FreakFunc)(T &t);
 
     public :
-        void add(const Data<T>& t);
+
+        FreakVector();
+        FreakVector(const FreakVector<T>& t);
+
+        inline T& operator[](std::size_t index) {
+            assert(index < this->size() && index >= 0);
+            return x.at(index);
+        };
+
+        inline T getByIndex(std::size_t index) const {
+            assert(index < this->size() && index >= 0);
+            return x[index];
+        }
+
+        inline void set(std::size_t index, const T& t) {
+            x[index] = t;
+        };
+
+        inline std::size_t size() const  {
+            return x.size();
+        }
+
+        inline std::vector<T> getData() const {
+            return x;
+        }
+
+        inline void push_back(T t) {
+            this->x.push_back(t);
+        }
+
+        void add(const FreakVector<T>& t);
+
         void add(const T& t);
-        T prod(const Data<T>&  t);
+
+        T prod(FreakVector<T>&  t);
+
         void mul(const T& t);
+
+        void apply(FreakFunc func);
 };
 
+template <class T>
+FreakVector<T>::FreakVector() {
+    dims.push_back(1);
+}
+
+template <class T>
+FreakVector<T>::FreakVector(const FreakVector<T>& t) {
+    this->dims = t.dims;
+    this->x = t.getData();
+}
+
 template <class T> 
-void Data<T>::add(const Data<T>& t) {
-    for(int i=0;i<t.x.size();++i){
-        this->x[i]+=t.x[i];
+void FreakVector<T>::add(const FreakVector<T>& t) {
+    for(int i=0;i<t.size();++i){
+        x[i]+=t[i];
     }
 }
 
 template <class T>
-T Data<T>::prod(const Data<T>& t){
+T FreakVector<T>::prod(FreakVector<T>& t){
+    assert(t.size() == this->size());
     T result = 0;
-    for(int i=0;i<t.x.size();++i) {
-        result += this->x[i] * t.x[i];
+    for(int i=0;i<t.size();++i) {
+        result += x[i] * t[i];
     }
     return result;
 }
 
 template <class T>
-void Data<T>::add(const T& t){
-    for(int i=0;i<this->x.size();++i) {
-        this->x[i] += t;
+void FreakVector<T>::add(const T& t){
+    assert(t.size() == this->size());
+    for(int i=0;i<size();++i) {
+        x[i] += t;
     }
 }
 
 template <class T>
-void Data<T>::mul(const T& t){
-    for(int i=0;i<this->x.size();++i) {
-        this->x[i] *= t;
+void FreakVector<T>::mul(const T& t){
+    for(int i=0;i<size();++i) {
+        x[i] *= t;
     }
 }
 
-void printD (const Data<float>& t);
+template <class T>
+void FreakVector<T>::apply(FreakVector<T>::FreakFunc func) {
+    std::for_each(x.begin(),x.end(),func);
+}
+
+template <class T>
+void exp(T &t) {
+    t = std::exp(t);
+}
+
+template <class T>
+void log(T &t) {
+    t = std::log(t);
+}
+
+typedef FreakVector<> FreakVectorF;
+
+void printD (const FreakVectorF& t);
+
+
+}
 
 #endif /* __FREAK_DATUM_H */

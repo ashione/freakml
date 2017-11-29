@@ -7,7 +7,7 @@ CFLAGS=-I$(IDIR)
 ODIR=.
 LDIR =
 
-LIBS=-lm
+LIBS=
 
 _DEPS = freakDatum.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
@@ -31,4 +31,4 @@ out: $(OBJ)
 .PHONY: clean
 
 clean:
-	rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~ 
+	rm -f out $(OBJ)

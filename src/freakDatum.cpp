@@ -1,9 +1,11 @@
 #include <freakDatum.h>
 #include <iostream>
+#include <algorithm>
 
-void
-printD (const Data<float>& t){
-    for(int i=0;i<t.x.size();++i)  {
-        std::cout<<t.x[i]<<std::endl;
+void freak::printD (const FreakVectorF& t){
+    std::cout<<"size : "<<t.size()<<std::endl;
+    for(int i=0;i<t.size();++i)  {
+        std::cout<<t.getByIndex(i)<<std::endl;
     }
 }
+
