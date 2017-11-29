@@ -8,7 +8,7 @@
 
 namespace freak {
 
-template <class T = float>
+template <class T = DATUM_TYPE>
 class FreakVector { 
 
     private :
@@ -21,6 +21,9 @@ class FreakVector {
     public :
 
         FreakVector();
+
+        FreakVector(std::size_t size);
+
         FreakVector(const FreakVector<T>& t);
 
         inline T& operator[](std::size_t index) {
@@ -68,6 +71,12 @@ class FreakVector {
 template <class T>
 FreakVector<T>::FreakVector() {
     dims.push_back(1);
+}
+
+template <class T>
+FreakVector<T>::FreakVector(std::size_t size) {
+    x = std::vector<T>(size);
+    std::fill(x.begin(),x.end(),0.0);
 }
 
 template <class T>
@@ -127,7 +136,7 @@ void log(T &t) {
     t = std::log(t);
 }
 
-typedef FreakVector<float> FreakVectorF;
+typedef FreakVector<DATUM_TYPE> FreakVectorF;
 
 void printD (const FreakVectorF& t);
 

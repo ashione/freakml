@@ -4,4 +4,7 @@
 #include <cassert> 
 #include <cmath>
 
+#define DATUM_TYPE float
+#define LABEL_TYPE int
+
 #endif /* __FREAK_CONFIG_H__ */

@@ -5,7 +5,7 @@
 
 namespace freak {
 
-template <class T = int>
+template <class T = LABEL_TYPE>
 class FreakLabel {
 
     private :
@@ -72,7 +72,7 @@ T FreakLabel<T>::getLabel() const
     return this->y;
 }
 
-typedef FreakLabel<int> FreakLabelC;
+typedef FreakLabel<LABEL_TYPE> FreakLabelC;
 
 typedef FreakLabel<float> FreakLabelF;
 
