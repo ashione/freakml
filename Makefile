@@ -1,34 +1,63 @@
-IDIR =include
-SDIR =src
-TDIR = tools
-CC=g++
-CFLAGS=-I$(IDIR)
+CFLAGS = -g -Wall -fPIC -D_FILE_OFFSET_BITS=64
+CXX = g++ 
+CC = gcc
 
-ODIR=.
-LDIR =
+INCLUDE=-I./include
+SRC = $(wildcard src/*.cpp)
 
-LIBS=
+TARGET = ./lib/libfreak.so
+LDFLAGS = -shared
+LIBS = -L./lib -lstdc++ -lfreak
 
-_DEPS = freakDatum.h
-DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
+BINDIR  = bin
+OBJDIR = bin/obj
+TESTDIR = test
 
-_OBJ_T = testDatum.o
-_OBJ_S = freakDatum.o
+TESTSRC_CPP = $(wildcard $(TESTDIR)/*.cpp)
+TESTSRC_C = $(wildcard $(TESTDIR)/*.c)
+TESTSRC = $(TESTSRC_CPP) $(TESTSRC_C)
 
-OBJ_T = $(patsubst %,$(TDIR)/$(ODIR)/%,$(_OBJ_T))
-OBJ_S = $(patsubst %,$(SDIR)/$(ODIR)/%,$(_OBJ_S))
+$(info $(TESTSRC))
 
-OBJ = $(OBJ_T) $(OBJ_S)
+TESTOBJ_CPP = $(patsubst $(TESTDIR)/%.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(TESTSRC)))
+TESTOBJ_C = $(patsubst $(TESTDIR)/%.c,$(OBJDIR)/%.o,$(filter %.c,$(TESTSRC)))
 
-$(info $(OBJ))
+TESTOBJ = $(TESTOBJ_CPP) $(TESTOBJ_C)
 
-$(ODIR)/%.o: %.cpp $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
+$(info $(TESTOBJ))
 
-out: $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+TESTBIN_CPP = $(patsubst $(TESTDIR)/%.cpp,$(BINDIR)/%.bin,$(filter %.cpp,$(TESTSRC)))
+TESTBIN_C   = $(patsubst $(TESTDIR)/%.c,$(BINDIR)/%.bin,$(filter %.c,$(TESTSRC)))
 
-.PHONY: clean
+TESTEXE = $(TESTBIN_CPP) $(TESTBIN_C)
 
-clean:
-	rm -f out $(OBJ)
+
+all : $(TARGET)
+	
+$(TARGET) : pre
+	$(CXX) $(CFLAGS) -o $(TARGET) $(SRC)  $(LDFLAGS) $(INCLUDE)
+	@echo "generate share library"
+
+pre :
+	test -d lib ||  mkdir lib 
+	test -d bin || ( mkdir -p bin/obj)
+
+test : $(TESTEXE)
+
+$(BINDIR)/%.bin : $(OBJDIR)/%.o
+	$(CXX) $(CFLAGS) -o $@ $<  $(INCLUDE) $(LIBS)
+
+$(OBJDIR)/%.o : $(TESTDIR)/%.cpp
+	$(CXX) $(CFLAGS) -o $@ -c $^ $(INCLUDE) $(LIBS)
+
+$(OBJDIR)/%.o : $(TESTDIR)/%.c
+	$(CC) $(CFLAGS) -o $@ -c $^ $(INCLUDE) $(LIBS)
+
+
+.PHONY : clean
+
+clean :  cleantest
+	rm -rf lib  $(TARGET) 
+
+cleantest : 
+		rm -rf bin

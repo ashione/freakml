@@ -1,10 +1,10 @@
 #ifndef __FREAK_DATUM_H__
 #define __FREAK_DATUM_H__
 
+#include <freakConfig.h>
+
 #include <vector>
-#include <cassert> 
 #include <algorithm>
-#include <cmath>
 
 namespace freak {
 
@@ -26,6 +26,11 @@ class FreakVector {
         inline T& operator[](std::size_t index) {
             assert(index < this->size() && index >= 0);
             return x.at(index);
+        };
+
+        inline T operator[](std::size_t index) const {
+            assert(index < this->size() && index >= 0);
+            return x[index];
         };
 
         inline T getByIndex(std::size_t index) const {
@@ -66,30 +71,34 @@ FreakVector<T>::FreakVector() {
 }
 
 template <class T>
-FreakVector<T>::FreakVector(const FreakVector<T>& t) {
+FreakVector<T>::FreakVector(const FreakVector<T>& t)
+{
     this->dims = t.dims;
     this->x = t.getData();
 }
 
 template <class T> 
-void FreakVector<T>::add(const FreakVector<T>& t) {
-    for(int i=0;i<t.size();++i){
-        x[i]+=t[i];
+void FreakVector<T>::add(const FreakVector<T>& t)
+{
+    for(size_t i=0; i<t.size(); ++i){
+        x[i] += t[i];
     }
 }
 
 template <class T>
-T FreakVector<T>::prod(FreakVector<T>& t){
+T FreakVector<T>::prod(FreakVector<T>& t)
+{
     assert(t.size() == this->size());
     T result = 0;
-    for(int i=0;i<t.size();++i) {
+    for(size_t i = 0; i < t.size(); ++i) {
         result += x[i] * t[i];
     }
     return result;
 }
 
 template <class T>
-void FreakVector<T>::add(const T& t){
+void FreakVector<T>::add(const T& t)
+{
     assert(t.size() == this->size());
     for(int i=0;i<size();++i) {
         x[i] += t;
@@ -118,7 +127,7 @@ void log(T &t) {
     t = std::log(t);
 }
 
-typedef FreakVector<> FreakVectorF;
+typedef FreakVector<float> FreakVectorF;
 
 void printD (const FreakVectorF& t);
 
