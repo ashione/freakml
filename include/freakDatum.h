@@ -63,6 +63,8 @@ class FreakVector {
 
         virtual T prod(FreakVector<T>&  t);
 
+        T distance(const FreakVector<T>& t) const;
+
         void mul(const T& t);
 
         void apply(FreakFunc func);
@@ -108,6 +110,17 @@ T FreakVector<T>::prod(FreakVector<T>& t)
 }
 
 template <class T>
+T FreakVector<T>::distance(const FreakVector<T>& t) const
+{
+    assert(t.size() == this->size());
+    T result = 0;
+    for(size_t i = 0; i < t.size(); ++i) {
+        result += std::pow(x[i] - t[i],2.0);
+    }
+    return static_cast<T>(std::pow(result,0.5));
+}
+
+template <class T>
 void FreakVector<T>::add(const T& t)
 {
     assert(t.size() == this->size());
@@ -118,7 +131,7 @@ void FreakVector<T>::add(const T& t)
 
 template <class T>
 void FreakVector<T>::mul(const T& t){
-    for(int i=0;i<size();++i) {
+    for(size_t i=0;i<size();++i) {
         x[i] *= t;
     }
 }
