@@ -24,10 +24,10 @@ int main() {
     }
 
     FreakLR<float,int> frealr(records);
-    float b = train(&frealr);
+    train(&frealr);
     float ac = 0;
     for(size_t i =0 ; i<records.size() ; ++i) {
-        float p0 = 1/(1.0+exp(records[i].prod(*(frealr.w)) + b));
+        float p0 = 1/(1.0+exp(records[i].prod(*(frealr.w)) + frealr.w->getB()));
         int y_p = p0>0.5?0:1;
         if (y_p == records[i].getLabel()) {
             ac++;

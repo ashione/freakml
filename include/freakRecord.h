@@ -7,7 +7,7 @@
 
 namespace freak {
 
-template< class T1 = float, class T2 = int>
+template< class T1 = DATUM_TYPE, class T2 = LABEL_TYPE>
 class FreakRecord : public FreakVector<T1>, public FreakLabel<T2>
 {
     public :

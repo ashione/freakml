@@ -3,6 +3,7 @@
 
 #include <freakConfig.h>
 #include <freakRecord.h>
+#include <freakWeight.h>
 
 #include <vector>
 namespace freak {
@@ -12,12 +13,12 @@ class FreakLR {
 
     public :
         std::vector<FreakRecord<T1,T2> >& records;
-        FreakVector<T1>* w;
+        FreakWeight<T1>* w;
 
     public :
         FreakLR(std::vector<FreakRecord<T1,T2> >& input) : records(input){
 
-        w = new FreakVector<T1>(input[0].size());
+        w = new FreakWeight<T1>(input[0].size());
         };
         void train(const T1 epsilon);
 
@@ -44,7 +45,7 @@ FreakLR<T1,T2>::~FreakLR()
     delete w;
 }
 
-DATUM_TYPE train(FreakLR<>* freakLR,DATUM_TYPE lr = 0.002, size_t max_iter= 1000);
+void train(FreakLR<>* freakLR,DATUM_TYPE lr = 0.002, size_t max_iter= 1000);
 
 }
 
