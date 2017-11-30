@@ -33,6 +33,10 @@ class FreakWeight : public FreakVector<T> {
         inline T& getB();
         inline void setB(const T);
 
+        T prod(FreakVector<T>& t);
+
+
+
 };
 
 template<class T>
@@ -45,6 +49,12 @@ template<class T>
 void FreakWeight<T>::setB(const T b_)
 {
    b = b_; 
+}
+
+template<class T>
+T FreakWeight<T>::prod(FreakVector<T>& t)
+{
+    return t.prod(*this) + b;
 }
 
 }

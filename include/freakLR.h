@@ -17,12 +17,11 @@ class FreakLR {
 
     public :
         FreakLR(std::vector<FreakRecord<T1,T2> >& input) : records(input){
-
-        w = new FreakWeight<T1>(input[0].size());
+            w = new FreakWeight<T1>(input[0].size());
         };
         void train(const T1 epsilon);
 
-        ~FreakLR();
+        virtual ~FreakLR();
 };
 
 //template <class T1,class T2>

@@ -61,11 +61,13 @@ class FreakVector {
 
         void add(const T& t);
 
-        T prod(FreakVector<T>&  t);
+        virtual T prod(FreakVector<T>&  t);
 
         void mul(const T& t);
 
         void apply(FreakFunc func);
+
+        virtual ~FreakVector(){};
 };
 
 template <class T>
