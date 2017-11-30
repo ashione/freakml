@@ -5,7 +5,7 @@
 using namespace freak;
 
 std::vector<FreakVector<> > 
-kmeans(const std::vector<FreakVector<> >& fvts, 
+freak::kmeans(const std::vector<FreakVector<> >& fvts, 
        size_t k,
        DATUM_TYPE epsilon,
        size_t max_iter)
@@ -19,6 +19,7 @@ kmeans(const std::vector<FreakVector<> >& fvts,
 
     for(size_t iter=0; iter<max_iter; ++iter) {
         std::vector<FreakVector<> > k_temp(k);
+        std::fill(k_temp.begin(),k_temp.end(),FreakVectorF(fvts[0].size()));
         std::vector<size_t > k_num(k);
         std::fill(k_num.begin(),k_num.end(),0);
 

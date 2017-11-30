@@ -32,7 +32,7 @@ int main() {
     x.push_back(y1);
     x.push_back(y2);
 
-    std::vector<FreakVectorF > result = freak::kmeans(x,2);
+    std::vector<FreakVectorF > result = freak::kmeans(x,3);
 
     for(size_t i=0;i<result.size();++i) {
         printD(result[i]);
