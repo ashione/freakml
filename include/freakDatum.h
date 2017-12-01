@@ -5,6 +5,9 @@
 
 #include <vector>
 #include <algorithm>
+#include <iterator>
+#include <numeric>
+
 
 namespace freak {
 
@@ -17,6 +20,8 @@ class FreakVector {
         std::vector<std::size_t> dims;
 
         typedef void (*FreakFunc)(T &t);
+
+        typedef typename std::vector<T>::iterator Iterator;
 
     public :
 
@@ -57,17 +62,27 @@ class FreakVector {
             this->x.push_back(t);
         }
 
+        inline Iterator begin() {
+            return this->x.begin();
+        };
+
+        inline Iterator end() {
+            return this->x.end();
+        };
+
         void add(const FreakVector<T>& t);
 
         void add(const T& t);
 
-        virtual T prod(FreakVector<T>&  t);
+        virtual T prod(FreakVector<T>&  t) const;
 
-        T distance(const FreakVector<T>& t) const;
+        T distance(FreakVector<T>& t) const;
 
         void mul(const T& t);
 
         void apply(FreakFunc func);
+
+        T sum();
 
         virtual ~FreakVector(){};
 };
@@ -99,23 +114,22 @@ void FreakVector<T>::add(const FreakVector<T>& t)
 }
 
 template <class T>
-T FreakVector<T>::prod(FreakVector<T>& t)
+T FreakVector<T>::prod(FreakVector<T>& t) const
 {
     assert(t.size() == this->size());
-    T result = 0;
-    for(size_t i = 0; i < t.size(); ++i) {
-        result += x[i] * t[i];
-    }
-    return result;
+    return std::inner_product(x.begin(),x.end(),t.begin(),0.0);
 }
 
 template <class T>
-T FreakVector<T>::distance(const FreakVector<T>& t) const
+T FreakVector<T>::distance(FreakVector<T>& t) const
 {
     assert(t.size() == this->size());
     T result = 0;
-    for(size_t i = 0; i < t.size(); ++i) {
-        result += std::pow(x[i] - t[i],2.0);
+    auto it = x.begin();
+    auto tt = t.begin();
+
+    while(it != x.end()) {
+        result += std::pow((*it++) - (*tt++),2.0);
     }
     return static_cast<T>(std::pow(result,0.5));
 }
@@ -124,8 +138,8 @@ template <class T>
 void FreakVector<T>::add(const T& t)
 {
     assert(t.size() == this->size());
-    for(int i=0;i<size();++i) {
-        x[i] += t;
+    for(Iterator it=x.begin();x!=x.end(); it++) {
+        it += t;
     }
 }
 
@@ -137,19 +151,15 @@ void FreakVector<T>::mul(const T& t){
 }
 
 template <class T>
+T FreakVector<T>::sum(){
+    return std::accumulate(this->begin(), this->end(), 0.0);
+}
+
+template <class T>
 void FreakVector<T>::apply(FreakVector<T>::FreakFunc func) {
     std::for_each(x.begin(),x.end(),func);
 }
 
-template <class T>
-void exp(T &t) {
-    t = std::exp(t);
-}
-
-template <class T>
-void log(T &t) {
-    t = std::log(t);
-}
 
 typedef FreakVector<DATUM_TYPE> FreakVectorF;
 

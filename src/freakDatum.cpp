@@ -4,9 +4,9 @@
 
 void freak::printD (const FreakVectorF& t)
 {
-    std::cout<<"size : "<<t.size()<<std::endl;
     for(size_t i=0; i<t.size(); ++i)  {
-        std::cout<<t.getByIndex(i)<<std::endl;
+        std::cout<<t.getByIndex(i)<<" ";
     }
+    std::cout<<std::endl;
 }
 

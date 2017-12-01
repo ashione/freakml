@@ -32,10 +32,33 @@ int main() {
     x.push_back(y1);
     x.push_back(y2);
 
-    std::vector<FreakVectorF > result = freak::kmeans(x,3);
+    std::vector<FreakVectorF > result = freak::kmeans(x,2);
 
     for(size_t i=0;i<result.size();++i) {
         printD(result[i]);
+    }
+
+    size_t n;
+    cin>>n;
+
+    std::vector<FreakVectorF > src;
+    FreakVectorF item(n);
+    float datum;
+    while(cin>>datum) {
+        size_t i =0;
+        item[i++] = datum;
+        for(;i<n;++i) {
+            cin>>datum;
+            item[i] = datum;
+        }
+        src.push_back(item);
+        printD(item);
+    }
+
+    std::vector<FreakVectorF > dsc = freak::kmeans(src,10);
+
+    for(size_t i=0;i<dsc.size();++i) {
+        printD(dsc[i]);
     }
 
     return 0;

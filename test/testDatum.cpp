@@ -1,4 +1,5 @@
 #include <freakDatum.h>
+#include <freakMath.h>
 #include <iostream>
 #include <cmath>
 
@@ -15,6 +16,7 @@ int main() {
     y1.push_back(1.0);
 
     cout<<x1.prod(y1)<<endl;
+    cout<<x1.distance(y1)<<endl;
 
     FreakVectorF x2(x1);
     x2.push_back(3.0);
@@ -29,4 +31,6 @@ int main() {
 
     x1.apply(freak::log);
     printD(x1);
+
+    cout<<x1.sum()<<endl;
 }

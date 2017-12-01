@@ -1,5 +1,5 @@
-CFLAGS = -g -Wall -fPIC -D_FILE_OFFSET_BITS=64
-CXX = g++ 
+CFLAGS = -g -Wall -fPIC -D_FILE_OFFSET_BITS=64 -std=c++11
+CXX = g++
 CC = gcc
 
 INCLUDE=-I./include
@@ -60,4 +60,4 @@ clean :  cleantest
 	rm -rf lib  $(TARGET) 
 
 cleantest : 
-		rm -rf bin
+	rm -rf bin

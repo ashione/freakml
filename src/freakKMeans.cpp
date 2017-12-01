@@ -1,7 +1,7 @@
 #include <freakKMeans.h>
 
 #include <limits>
-
+#include <iostream>
 using namespace freak;
 
 std::vector<FreakVector<> > 
@@ -15,8 +15,8 @@ freak::kmeans(const std::vector<FreakVector<> >& fvts,
 
     std::copy(fvts.begin(),fvts.begin()+k,&k_indexes.front());
     
-    //DATUM_TYPE loss = std::numeric_limits<DATUM_TYPE>::max();
-
+    DATUM_TYPE loss = std::numeric_limits<DATUM_TYPE>::max();
+    
     for(size_t iter=0; iter<max_iter; ++iter) {
         std::vector<FreakVector<> > k_temp(k);
         std::fill(k_temp.begin(),k_temp.end(),FreakVectorF(fvts[0].size()));
@@ -36,10 +36,19 @@ freak::kmeans(const std::vector<FreakVector<> >& fvts,
             k_temp[short_index].add(fvts[i]);
             k_num[short_index]++;
         }
-
+        loss = 0;
         for(size_t j=0; j<k; ++j) {
             k_temp[j].mul(1.0/k_num[j]);
+            if (k_indexes[j].size() == k_temp[j].size()) {
+                loss += k_indexes[j].distance(k_temp[j]);
+            }
         }
+        //early break
+        if (loss < epsilon) {
+            std::cout<<"Iteration => "<<iter<<std::endl;
+            break;
+        }
+
         k_indexes = k_temp;
     }
 
