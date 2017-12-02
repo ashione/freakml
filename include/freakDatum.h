@@ -29,12 +29,30 @@ class FreakVector {
 
         FreakVector(std::size_t size);
 
+        FreakVector(std::size_t size, T v);
+
         FreakVector(const FreakVector<T>& t);
 
         inline T& operator[](std::size_t index) {
             assert(index < this->size() && index >= 0);
             return x.at(index);
         };
+
+        inline FreakVector<T> operator+ (const FreakVector<T>& t) const ;
+
+        inline FreakVector<T> operator- (const FreakVector<T>& t) const;
+
+        inline FreakVector<T> operator* (const FreakVector<T>& t) const;
+
+        inline FreakVector<T> operator/ (const FreakVector<T>& t) const;
+
+        inline FreakVector<T> operator+ (const T t) const;
+
+        inline FreakVector<T> operator- (const T t) const;
+
+        inline FreakVector<T> operator* (const T t) const;
+
+        inline FreakVector<T> operator/ (const T t) const;
 
         inline T operator[](std::size_t index) const {
             assert(index < this->size() && index >= 0);
@@ -76,7 +94,7 @@ class FreakVector {
 
         virtual T prod(FreakVector<T>&  t) const;
 
-        T distance(FreakVector<T>& t) const;
+        T distance(const FreakVector<T>& t) const;
 
         void mul(const T& t);
 
@@ -87,6 +105,11 @@ class FreakVector {
         virtual ~FreakVector(){};
 };
 
+
+typedef FreakVector<DATUM_TYPE> FreakVectorF;
+
+void printD (const FreakVectorF& t);
+
 template <class T>
 FreakVector<T>::FreakVector() {
     dims.push_back(1);
@@ -96,6 +119,12 @@ template <class T>
 FreakVector<T>::FreakVector(std::size_t size) {
     x = std::vector<T>(size);
     std::fill(x.begin(),x.end(),0.0);
+}
+
+template <class T>
+FreakVector<T>::FreakVector(std::size_t size,T v) {
+    x = std::vector<T>(size);
+    std::fill(x.begin(),x.end(),v);
 }
 
 template <class T>
@@ -121,15 +150,12 @@ T FreakVector<T>::prod(FreakVector<T>& t) const
 }
 
 template <class T>
-T FreakVector<T>::distance(FreakVector<T>& t) const
+T FreakVector<T>::distance(const FreakVector<T>& t) const
 {
     assert(t.size() == this->size());
     T result = 0;
-    auto it = x.begin();
-    auto tt = t.begin();
-
-    while(it != x.end()) {
-        result += std::pow((*it++) - (*tt++),2.0);
+    for(size_t i=0;i<size();i++) {
+        result += std::pow(x[i] - t[i],2.0);
     }
     return static_cast<T>(std::pow(result,0.5));
 }
@@ -160,11 +186,89 @@ void FreakVector<T>::apply(FreakVector<T>::FreakFunc func) {
     std::for_each(x.begin(),x.end(),func);
 }
 
+template <class T>
+FreakVector<T> FreakVector<T>::operator+(const FreakVector<T>& t) const
+{
+    assert(this->size() == t.size());
+    FreakVector<T> result(t.size());
+    for(size_t i = 0; i<t.size(); i++) {
+        result[i] = x[i] + t[i];
+    }
+    return result;
+}
 
-typedef FreakVector<DATUM_TYPE> FreakVectorF;
+template <class T>
+FreakVector<T> FreakVector<T>::operator-(const FreakVector<T>& t) const
+{
+    assert(this->size() == t.size());
+    FreakVector<T> result(t.size());
+    for(size_t i = 0; i<t.size(); i++) {
+        result[i] = x[i] - t[i];
+    }
+    return result;
+}
 
-void printD (const FreakVectorF& t);
+template <class T>
+FreakVector<T> FreakVector<T>::operator*(const FreakVector<T>& t) const
+{
+    assert(this->size() == t.size());
+    FreakVector<T> result(t.size());
+    for(size_t i = 0; i<t.size(); i++) {
+        result[i] = x[i] * t[i];
+    }
+    return result;
+}
 
+template <class T>
+FreakVector<T> FreakVector<T>::operator/(const FreakVector<T>& t) const
+{
+    assert(this->size() == t.size());
+    FreakVector<T> result(t.size());
+    for(size_t i = 0; i<t.size(); i++) {
+        result[i] = x[i] / t[i];
+    }
+    return result;
+}
+
+template <class T>
+FreakVector<T> FreakVector<T>::operator+(const T t) const
+{
+    FreakVector<T> result(x.size());
+    for(size_t i = 0; i<x.size(); i++) {
+        result[i] = x[i] + t;
+    }
+    return result;
+}
+
+template <class T>
+FreakVector<T> FreakVector<T>::operator-(const T t) const
+{
+    FreakVector<T> result(x.size());
+    for(size_t i = 0; i<x.size(); i++) {
+        result[i] = x[i] - t;
+    }
+    return result;
+}
+
+template <class T>
+FreakVector<T> FreakVector<T>::operator*(const T t) const
+{
+    FreakVector<T> result(x.size());
+    for(size_t i = 0; i< x.size(); i++) {
+        result[i] = x[i] * t;
+    }
+    return result;
+}
+
+template <class T>
+FreakVector<T> FreakVector<T>::operator/(const T t) const
+{
+    FreakVector<T> result(x.size());
+    for(size_t i = 0; i<x.size(); i++) {
+        result[i] = x[i] / t;
+    }
+    return result;
+}
 
 }
 

@@ -11,7 +11,7 @@ class FreakEM {
     public :
         virtual void exceptationStep() = 0;
         virtual void maximizationStep() = 0;
-        virtual void run();
+        virtual void run() = 0;
 };
 
 }
