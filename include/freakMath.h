@@ -5,7 +5,9 @@
 
 #include <algorithm>
 
-namespace freak {
+#define PI 3.14159265
+
+namespace freak{
 
 template <class T>
 void exp(T &t) {
@@ -13,8 +15,25 @@ void exp(T &t) {
 }
 
 template <class T>
+T exp(T t) {
+    return std::exp(t);
+}
+
+template <class T>
 void log(T &t) {
     t = std::log(t);
+}
+
+template <class T>
+T log(const T t) {
+    return std::log(t);
+}
+
+template <class T>
+T gaussian(const T t,const T mu,const T sigmaSquare)
+{
+   return 1.0/std::sqrt(2*PI*sigmaSquare) *
+       exp(- (t-mu)*(t-mu)/(2.0*sigmaSquare));
 }
 
 }
