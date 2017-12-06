@@ -213,6 +213,145 @@ T det(const size_t nRow,const size_t nCol, T* mat,bool isDiag = false)
     return result;
 }
 
+template <class T>
+T* mean(const size_t nRow, const size_t nCol, T* mat, bool isCol = false)
+{
+    size_t mCol = nCol;
+    if (isCol) {
+        mCol = nRow;
+    }
+    T* mu = new T[mCol];
+    if (!isCol) {
+        for(size_t i = 0; i<nRow; ++i) {
+            mu[i] = 0;
+            for(size_t j=0; j<nCol; ++j) {
+                mu[i] += mat[i*nCol + j];
+            }
+            mu[i]/=nCol;
+        }
+    } else {
+        for(size_t i = 0; i<nCol; ++i) {
+            mu[i] = 0;
+            for(size_t j=0; j<nRow; ++j) {
+                mu[i] += mat[j * nCol + i];
+            }
+            mu[i]/=nRow;
+        }
+
+    }    
+    return mu;
+}
+
+template <class T>
+T* standard(const size_t nRow, const size_t nCol, T* mat,bool isCol = false)
+{
+    size_t mCol = nCol;
+    if (isCol) {
+        mCol = nRow;
+    }
+    T* mu = new T[mCol];
+    T* stad = new T[mCol];
+    if (!isCol) {
+        for(size_t i = 0; i<nRow; ++i) {
+            mu[i] = 0;
+            for(size_t j=0; j<nCol; ++j) {
+                mu[i] += mat[i*nCol + j];
+            }
+            mu[i]/=nCol;
+            stad[i] = 0;
+            for(size_t j=0; j<nCol;++j) {
+                stad[i] += pow(mat[i*nCol +j] - mu[i],2.0);
+            }
+            stad[i] = sqrt(stad[i]/nCol);
+        }
+    } else {
+        for(size_t i = 0; i<nCol; ++i) {
+            mu[i] = 0;
+            for(size_t j=0; j<nRow; ++j) {
+                mu[i] += mat[j * nCol + i];
+            }
+            mu[i]/=nRow;
+
+            stad[i] = 0;
+            for(size_t j=0; j<nRow;++j) {
+                stad[i] += pow(mat[j*nCol +i] - mu[i],2.0);
+            }
+            stad[i] = sqrt(stad[i]/nRow);
+        }
+
+    }    
+    delete[] mu;
+    return stad;
+}
+
+template <class T>
+T* corr(const size_t nRow, const size_t nCol, T* mat, T* mu = NULL)
+{
+    assert(nRow >= 2 && nCol >=2);
+    T* matMu = mu;
+
+    if (!matMu) {
+        matMu = mean(nRow,nCol,mat,true);
+    }
+
+    //printF(matMu,1,nCol);
+
+    T* matCorr = new T[nCol*nCol];
+    for(size_t i = 0;i<nCol; ++i) {
+        for(size_t j=0; j<nCol;++j) {
+            size_t index = i*nCol +j;
+            matCorr[index] = 0;
+            for(size_t k=0; k<nRow; ++k) {
+                matCorr[index] += (mat[k*nCol + i ] - matMu[i]) * (mat[k*nCol + j] - matMu[j]);
+            }
+            matCorr[index]/=(nRow-1);
+
+        }
+    }
+    if (!mu) {
+        delete[] matMu;
+    }
+    return matCorr;
+
+}
+
+template <class T>
+T* corrCoef(const size_t nRow, const size_t nCol, T* mat, T* mu = NULL)
+{
+    assert(nRow >= 2 && nCol >=2);
+    T* matMu = mu;
+
+    if (!matMu) {
+        matMu = mean(nRow,nCol,mat,true);
+    }
+    T* matStd = standard(nRow,nCol,mat,true);
+
+    //printF(matMu,1,nCol);
+    //printF(matStd,1,nCol);
+
+    T* matCorr = new T[nCol*nCol];
+    for(size_t i = 0;i<nCol; ++i) {
+        for(size_t j=0; j<nCol;++j) {
+            size_t index = i*nCol +j;
+            matCorr[index] = 0;
+            for(size_t k=0; k<nRow; ++k) {
+                matCorr[index] += (mat[k*nCol + i ] - matMu[i]) * 
+                    (mat[k*nCol + j] - matMu[j])/matStd[i]/matStd[j];
+            }
+            matCorr[index]/=(nRow-1);
+
+        }
+    }
+    if (!mu) {
+        delete[] matMu;
+    }
+
+    delete[] matStd;
+
+    return matCorr;
+
+}
+
 }
 
 #endif /* __FREAK_MATH_H__ */
