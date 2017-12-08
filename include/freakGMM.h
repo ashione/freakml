@@ -4,6 +4,8 @@
 #include <freakConfig.h>
 #include <freakEM.h>
 #include <freakDatum.h>
+#include <freakMatrix.h>
+#include <freakMath.h>
 #include <random>
 #include <iostream>
 
@@ -14,11 +16,11 @@ template <class T = DATUM_TYPE>
 class FreakGMM : public FreakEM
 {
     public  :
-        std::vector<FreakVector<T> >& records;
-        FreakVector<T> sigma2;
-        std::vector<FreakVector<T> > mu;
+        FreakMat<T>& records;
+        std::vector<FreakMat<T> > sigma2;
+        FreakMat<T> mu;
         FreakVector<T> alpha;
-        std::vector<FreakVector<T> > r;
+        FreakMat<T> r;
     private :
         size_t k;
         T torelance;
@@ -27,7 +29,7 @@ class FreakGMM : public FreakEM
         size_t m;
 
     public :
-        FreakGMM(size_t k_, std::vector<FreakVector<T> >& records_, const T& torelance_ = 1e-7);
+        FreakGMM(size_t k_, FreakMat<T>& records_, const T& torelance_ = 1e-7);
         void init();
         void exceptationStep();
         void maximizationStep();
@@ -37,7 +39,7 @@ class FreakGMM : public FreakEM
 };
 
 template <class T>
-FreakGMM<T>::FreakGMM(size_t k_, std::vector<FreakVector<T> >& records_, const T& torelance_) : records(records_)
+FreakGMM<T>::FreakGMM(size_t k_, FreakMat<T>& records_, const T& torelance_) : records(records_)
 {
     k = k_;
     torelance = torelance_;
@@ -53,13 +55,13 @@ void FreakGMM<T>::init()
     m = records[0].size();
     assert(m > 0);
 
-    sigma2 = FreakVector<T>(k,1.0);
-    mu = std::vector<FreakVector<T> >(k,FreakVector<T>(m));
+    sigma2 = std::vector<FreakMat<T> >(k,FreakMat<T>(m,m));
+    mu = FreakMat<T>(k,m);
     alpha =  FreakVector<T>(k);
-    r = std::vector<FreakVector<T> >(n,FreakVector<T>(k));
+    r = FreakMat<T>(n,m);
     for(size_t i =0 ; i<k; ++i) {
         alpha[i] = 1.0/k;
-		sigma2[i] = (i+1.0)/k;
+		randu(sigma2[i].ptr(),sigma2[i].size());
         mu[i] = records[i];
     }
 
@@ -80,14 +82,15 @@ FreakGMM<T>::~FreakGMM()
 template <class T>
 void FreakGMM<T>::exceptationStep()
 {
-    FreakVector<T> theta(k);
-    for(size_t i=0; i<n; ++i) {
-        for(size_t j=0;j<k;++j) {
-            theta[j] = gaussian(records[i],mu[j],sigma2[j]) * alpha[j];
-        }
-        T sumMixed = theta.sum();
-        r[i] = theta/sumMixed;
+    T* invSigma2 = new T[m*m];
+    for(size_t i = 0; i<k ; ++i) {
+        FreakMat<T> records_shift = records - mu.row(i);
+        inv(m,m,sigma2[i].ptr(),invSigma2);
+        FreakMat<T> invMat(m,m,invSigma2);
+        FreakMat<T> tmp = (records * invMat).dot(records_shift).sum(1);
     }
+
+    delete invSigma2;
 
 }
 

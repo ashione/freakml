@@ -18,9 +18,9 @@ void randu(T* data,size_t size = 1, T s = 0.0, T e = 1.0)
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis(s, e);
-
-    for (size_t i = 0; i<size; ++i) {
-         *data = dis(gen);
+    size_t i = 0;
+    while ( i < size ) {
+         data[i++] = dis(gen);
     }
 }
 
@@ -196,6 +196,43 @@ T* inv(const size_t nRow, const size_t nCol, T* mat)
 }
 
 template <class T>
+void inv(const size_t nRow, const size_t nCol, T* mat,T *data)
+{
+    assert(data);
+
+    T* companyMat = data;
+
+    companyMat = eye(nRow,nCol,companyMat);
+
+    T* diagMat = diag(nRow,nCol,mat,companyMat);
+
+    for(size_t i=0;i<nRow;++i) {
+        T scale = diagMat[i*nCol+i];
+
+        for(size_t j=i;j<nCol;++j) {
+            diagMat[i*nCol+j] /= scale;
+        }
+        for(size_t j=0;j<nCol;++j) {
+            companyMat[i*nCol+j] /= scale;
+        }
+    }
+    for(size_t i= 0; i<nRow-1; i++) {
+        T scale = diagMat[i*nCol+i+1] / diagMat[(i+1)*nCol + i+1];
+        assert(abs(scale) > EPS);
+        for(size_t j = i+1; j<nCol; j++) {
+            diagMat[i*nCol+j] -= scale * diagMat[(i+1)*nCol+j];
+        }
+
+        for(size_t j=0;j<nCol;j++) {
+            companyMat[i*nCol+j] -= companyMat[(i+1)*nCol+j] * scale;
+
+        }
+
+    }
+    delete[] diagMat;
+}
+
+template <class T>
 T* mul(const size_t nRow,const size_t nCol, const size_t tCol, T* A, T* B) {
 
     T* result = new T[nRow*tCol];
@@ -211,6 +248,7 @@ T* mul(const size_t nRow,const size_t nCol, const size_t tCol, T* A, T* B) {
     }
     return result;
 }
+
 template <class T>
 void mul(const size_t nRow,const size_t nCol, const size_t tCol, T* A, T* B,T* C) {
 
@@ -225,6 +263,15 @@ void mul(const size_t nRow,const size_t nCol, const size_t tCol, T* A, T* B,T* C
             }
         }
     }
+}
+
+template <class T>
+void dot(const size_t size, T* A, T* B,T* C) {
+
+    for(size_t i=0;i<size;++i) {
+        C[i] = A[i] * B[i];
+    }
+
 }
 
 template <class T>
