@@ -49,6 +49,14 @@ int main(){
     delete[] matCof;
     delete[] cMat;
 
+    float* rad =new float[5];
+    randu(rad,5);
 
+    for(size_t i=0;i<5;++i) {
+        cout<<rad[i]<<" ";
+    }
+    cout<<endl;
+
+    delete[] rad;
     return 0;
 }

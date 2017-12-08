@@ -6,10 +6,23 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <random>
 
 #define PI 3.14159265
 
 namespace freak{
+
+template <class T>
+void randu(T* data,size_t size = 1, T s = 0.0, T e = 1.0)
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(s, e);
+
+    for (size_t i = 0; i<size; ++i) {
+         *data = dis(gen);
+    }
+}
 
 template <class T>
 void exp(T &t) {
@@ -184,7 +197,9 @@ T* inv(const size_t nRow, const size_t nCol, T* mat)
 
 template <class T>
 T* mul(const size_t nRow,const size_t nCol, const size_t tCol, T* A, T* B) {
+
     T* result = new T[nRow*tCol];
+
     for(size_t i=0;i<nRow;++i) {
         for(size_t k=0;k<tCol;++k) {
             size_t index = i*tCol+k;
@@ -195,6 +210,21 @@ T* mul(const size_t nRow,const size_t nCol, const size_t tCol, T* A, T* B) {
         }
     }
     return result;
+}
+template <class T>
+void mul(const size_t nRow,const size_t nCol, const size_t tCol, T* A, T* B,T* C) {
+
+    T* result = C;
+
+    for(size_t i=0;i<nRow;++i) {
+        for(size_t k=0;k<tCol;++k) {
+            size_t index = i*tCol+k;
+            result[index] = 0;
+            for(size_t j=0;j<nCol;j++) {
+                result[index] += A[i*nCol+j] * B[j*tCol+k];
+            }
+        }
+    }
 }
 
 template <class T>

@@ -102,6 +102,8 @@ class FreakVector {
 
         T sum();
 
+        T* ptr(size_t i = 0);
+
         virtual ~FreakVector(){};
 };
 
@@ -268,6 +270,12 @@ FreakVector<T> FreakVector<T>::operator/(const T t) const
         result[i] = x[i] / t;
     }
     return result;
+}
+
+template <class T>
+T* FreakVector<T>::ptr(size_t i) 
+{
+    return &x[0] + i;
 }
 
 }
