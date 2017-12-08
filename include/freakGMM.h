@@ -88,8 +88,11 @@ void FreakGMM<T>::exceptationStep()
         inv(m,m,sigma2[i].ptr(),invSigma2);
         FreakMat<T> invMat(m,m,invSigma2);
         FreakMat<T> tmp = (records * invMat).dot(records_shift).sum(1);
+        T coef = pow(2*PI,m*-1.0/2) * sqrt(det(m,m,invMat.ptr()));
+        for(size_t j=0;j<n;++j) {
+            r.at(j,i) = coef * exp(tmp.at(j,0));
+        }
     }
-
     delete invSigma2;
 
 }
