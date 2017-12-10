@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <cstring>
+#include <iostream>
 
 namespace freak {
 
@@ -23,6 +24,7 @@ class FreakMat {
     public :
         FreakMat(size_t nRow_, size_t nCol_, T* data = NULL);
         FreakMat(const FreakMat<T>& t);
+        FreakMat() { nRow=0; nCol=0; };
 
         inline T& at(size_t i, size_t j);
         inline T* ptr(size_t i = 0,size_t j = 0);
@@ -45,9 +47,18 @@ class FreakMat {
 
         FreakMat<T> dot(FreakMat<T>& t);
 
+        FreakMat<T> dot(FreakVector<T>& t);
+
         FreakMat<T> dot(T t);
 
+        FreakMat<T> div(FreakMat<T>& t);
+
+        FreakMat<T> div(FreakVector<T>& t, size_t axis = 0);
+
         FreakMat<T> sum(size_t axis);
+
+    public :
+        static FreakMat<T> diag(FreakVector<T>& t);
 
 };
 
@@ -56,6 +67,7 @@ FreakMat<T>::FreakMat(size_t nRow_,size_t nCol_,T* data)
 {
     nRow = nRow_;
     nCol = nCol_;
+
     x = std::vector<T>(nRow * nCol);
 
     if (data) {
@@ -109,7 +121,7 @@ FreakMat<T> FreakMat<T>::operator+ (FreakVector<T>& t)
     FreakMat<T> result(nRow,nCol);
 
     for(size_t i = 0; i<nRow; ++i) {
-        for(size_t j=0;j<nCol;++i) {
+        for(size_t j=0;j<nCol;++j) {
             result.at(i,j) = x.at(i,j) + t[j];
         }
     }
@@ -124,8 +136,8 @@ FreakMat<T> FreakMat<T>::operator- (FreakVector<T>& t)
     FreakMat<T> result(nRow,nCol);
 
     for(size_t i = 0; i<nRow; ++i) {
-        for(size_t j=0;j<nCol;++i) {
-            result.at(i,j) = x.at(i,j) - t[j];
+        for(size_t j=0;j<nCol;++j) {
+            result.at(i,j) = at(i,j) - t[j];
         }
     }
 
@@ -140,7 +152,7 @@ FreakMat<T> FreakMat<T>::operator+ (FreakMat<T>& t)
 
     FreakMat<T> result(nRow,nCol);
     for(size_t i = 0; i<nRow; ++i) {
-        for(size_t j=0;j<nCol;++i) {
+        for(size_t j=0;j<nCol;++j) {
             result.at(i,j) = x.at(i,j) + t.at(i,j);
         }
     }
@@ -156,7 +168,7 @@ FreakMat<T> FreakMat<T>::operator- (FreakMat<T>& t)
 
     FreakMat<T> result(nRow,nCol);
     for(size_t i = 0; i<nRow; ++i) {
-        for(size_t j=0;j<nCol;++i) {
+        for(size_t j=0;j<nCol;++j) {
             result.at(i,j) = x.at(i,j) - t.at(i,j);
         }
     }
@@ -169,7 +181,7 @@ FreakMat<T> FreakMat<T>::operator* (FreakMat<T>& t)
 {
     assert(t.nRow == nCol);
 
-    FreakMat<T> result(nRow,nCol);
+    FreakMat<T> result(nRow,t.nCol);
     mul(nRow,nCol,t.nCol,this->ptr(),t.ptr(),result.ptr());
 
     return result;
@@ -179,7 +191,7 @@ template <class T>
 FreakVector<T> FreakMat<T>::row(size_t i)
 {
     FreakVector<T> matRow(nCol);
-    std::memcpy(matRow.ptr(),this->at(i,0),sizeof(T) * nCol);
+    std::memcpy(matRow.ptr(),ptr(i,0),sizeof(T) * nCol);
     return matRow;
 }
 
@@ -198,16 +210,59 @@ FreakMat<T> FreakMat<T>::dot(FreakMat<T>& t)
 {
     FreakMat<T> result(nRow,nCol);
     freak::dot(size(),ptr(),t.ptr(),result.ptr());
+    return result;
 }
+
+template <class T>
+FreakMat<T> FreakMat<T>::div(FreakMat<T>& t)
+{
+    FreakMat<T> result(nRow,nCol);
+    freak::div(size(),ptr(),t.ptr(),result.ptr());
+    return result;
+}
+
 
 template <class T>
 FreakMat<T> FreakMat<T>::dot(T t)
 {
     FreakMat<T> result(nRow,nCol);
     for(size_t i=0;i<nRow;++i) {
-        for(size_t j=0;i<nCol;++j) {
+        for(size_t j=0;j<nCol;++j) {
             result.at(i,j) = at(i,j) * t;
         }
+    }
+    return result;
+}
+
+template <class T>
+FreakMat<T> FreakMat<T>::dot(FreakVector<T>& t)
+{
+    FreakMat<T> result(nRow,nCol);
+    for(size_t i=0;i<nRow;++i) {
+        freak::dot(nCol,ptr(i,0),t.ptr(),result.ptr(i,0));
+    }
+    return result;
+}
+
+template <class T>
+FreakMat<T> FreakMat<T>::div(FreakVector<T>& t, size_t axis)
+{
+    FreakMat<T> result(nRow,nCol);
+    if (axis == 0) {
+        assert( nCol == t.size() );
+        for(size_t i=0;i<nRow;++i) {
+            freak::div(nCol,ptr(i,0),t.ptr(),result.ptr(i,0));
+        }
+    } else if (axis == 1) {
+        assert( nRow == t.size() );
+        for(size_t i=0;i<nRow;++i) {
+            for(size_t j=0;j<nCol;++j) {
+                result.at(i,j) = at(i,j) / t[i];
+                std::cout<<at(i,j)<<" ";
+            }
+            std::cout<<" div sum : "<<t[i]<<std::endl;
+        }
+
     }
     return result;
 }
@@ -218,6 +273,7 @@ FreakMat<T> FreakMat<T>::sum(size_t axis)
     size_t mRow = 0, mCol = 0;
     if (axis == 0) {
         mRow = 1;
+        mCol = nCol;
     } else {
         mRow = nRow;
         mCol = 1;
@@ -225,26 +281,43 @@ FreakMat<T> FreakMat<T>::sum(size_t axis)
 
     FreakMat<T> result(mRow,mCol);
     if (axis == 0) {
-        for(size_t i=0;i<nRow;++i) {
-            T temp = 0;
-            for(size_t j=0;j<nCol;++j) {
-                temp += at(i,j);
-            }
-            result.at(0,i) = temp;
-        }
-    } else {
         for(size_t j=0;j<nCol;++j) {
             T temp = 0;
             for(size_t i=0;i<nRow;++i) {
                 temp += at(i,j);
             }
-            result.at(j,0) = temp;
+            result.at(0,j) = temp;
         }
 
+    } else {
+        for(size_t i=0;i<nRow;++i) {
+            T temp = 0;
+            for(size_t j=0;j<nCol;++j) {
+                std::cout<<at(i,j)<<" ";
+                temp += at(i,j);
+            }
+            std::cout<<"sum : "<<i<<" "<<temp<<std::endl;
+
+            result.at(i,0) = temp;
+        }
     }
     return result;
 
 }
+
+template <class T>
+FreakMat<T> FreakMat<T>::diag(FreakVector<T>& t)
+{
+    assert(t.size() >0 );
+    FreakMat<T> result(t.size(),t.size());
+    std::fill(result.ptr(),result.ptr(result.nRow-1,result.nCol-1),0);
+    for(size_t i = 0;i<result.nRow; ++i) {
+        result.at(i,i) = t[i];
+    }
+    return result;
+}
+
+typedef FreakMat<float> FreakMatF;
 
 }
 

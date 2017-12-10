@@ -16,7 +16,7 @@ template <class T = DATUM_TYPE>
 class FreakGMM : public FreakEM
 {
     public  :
-        FreakMat<T>& records;
+        FreakMat<T>* records;
         std::vector<FreakMat<T> > sigma2;
         FreakMat<T> mu;
         FreakVector<T> alpha;
@@ -24,27 +24,31 @@ class FreakGMM : public FreakEM
     private :
         size_t k;
         T torelance;
-        FreakVector<T> stepLoss;
+        T loss;
+        T minCov;
         size_t n;
         size_t m;
 
     public :
-        FreakGMM(size_t k_, FreakMat<T>& records_, const T& torelance_ = 1e-7);
+        FreakGMM(size_t k_, FreakMat<T>* records_, const T& torelance_ = 1e-7,T minCov_=1e-3);
         void init();
         void exceptationStep();
         void maximizationStep();
         void run();
+        void addMinCorr();
 
         ~FreakGMM();
 };
 
 template <class T>
-FreakGMM<T>::FreakGMM(size_t k_, FreakMat<T>& records_, const T& torelance_) : records(records_)
+FreakGMM<T>::FreakGMM(size_t k_, FreakMat<T>* records_, const T& torelance_,T minCov_)
 {
+    records = records_;
     k = k_;
     torelance = torelance_;
-    assert(records.size() > 0);
-    n = records.size();
+    assert(records->size() > 0);
+    n = records->nRow;
+    minCov = minCov_;
     init();
 }
 
@@ -52,19 +56,62 @@ template <class T>
 void FreakGMM<T>::init()
 {
 
-    m = records[0].size();
+    m = records->nCol;
     assert(m > 0);
 
     sigma2 = std::vector<FreakMat<T> >(k,FreakMat<T>(m,m));
     mu = FreakMat<T>(k,m);
     alpha =  FreakVector<T>(k);
-    r = FreakMat<T>(n,m);
+    r = FreakMat<T>(n,k);
+    
     for(size_t i =0 ; i<k; ++i) {
-        alpha[i] = 1.0/k;
-		randu(sigma2[i].ptr(),sigma2[i].size());
-        mu[i] = records[i];
+        for(size_t j=0;j<m;++j) {
+            mu.at(i,j) = records->at((i*17)%n,j);
+        }
     }
 
+    std::vector<size_t> numK(n,0);
+    for(size_t i=0;i<n;++i) {
+        T mDistance = 0.0;
+        size_t index = -1;
+        FreakVector<T> row = records->row(i);
+        for(size_t j=0;j<k;++j) {
+            FreakVector<T> muRow = mu.row(j);
+            T distance = row.distance(muRow);
+            if (j == 0) {
+                index = 0;
+                mDistance = distance;
+            } else {
+                if (distance < mDistance) {
+                    index = j;
+                    mDistance = distance;
+                }
+            }
+        }
+        numK[i] = index;
+    }
+    std::vector<size_t> nTotal(k,0);
+    for(size_t i=0;i<n;++i) {
+        nTotal[numK[i]]++;
+    }
+    T* corrData = NULL;
+    for(size_t i=0;i<k;++i) {
+        FreakMat<T> kRecords(nTotal[i],m);
+        alpha[i] = nTotal[i]*1.0/n;
+        size_t t = 0;
+        for(size_t j=0;j<n;++j) {
+            if (numK[j] == i) {
+                for(size_t q=0;q<m;++q) {
+                    kRecords.at(t,q) = records->at(j,q);
+                }
+                t++;
+            }
+        }
+        corrData = corr(t,m,kRecords.ptr());
+        sigma2[i] = FreakMat<T>(m,m,corrData);
+        delete[] corrData;
+    }
+    addMinCorr();
 
 }
 
@@ -84,57 +131,65 @@ void FreakGMM<T>::exceptationStep()
 {
     T* invSigma2 = new T[m*m];
     for(size_t i = 0; i<k ; ++i) {
-        FreakMat<T> records_shift = records - mu.row(i);
+        FreakVector<T> muRow = mu.row(i);
+        FreakMat<T> records_shift = *records - muRow;
         inv(m,m,sigma2[i].ptr(),invSigma2);
         FreakMat<T> invMat(m,m,invSigma2);
-        FreakMat<T> tmp = (records * invMat).dot(records_shift).sum(1);
+        FreakMat<T> tmp = (records_shift * invMat).dot(records_shift).sum(1);
         T coef = pow(2*PI,m*-1.0/2) * sqrt(det(m,m,invMat.ptr()));
+        std::cout<<"coef "<<coef<<std::endl;
         for(size_t j=0;j<n;++j) {
-            r.at(j,i) = coef * exp(tmp.at(j,0));
+            r.at(j,i) = coef * std::exp(-0.5*tmp.at(j,0));
+            std::cout<<i<<" "<<j<<" "<<r.at(j,i)<<std::endl;
         }
     }
     delete invSigma2;
 
 }
 
-template<class T>
-T assignAndCountLoss(T& a, T b)
-{
-    T temp = a-b;
-    T loss = abs(temp);
-    a = b;
-    return loss;
-}
-
-template<class T>
-T assignAndCountLoss(T& a, T b,bool isArray)
-{
-    T temp = a-b;
-    T loss = abs(temp,isArray);
-    a = b;
-    return loss;
-}
-
 template <class T>
 void FreakGMM<T>::maximizationStep()
 {
-    stepLoss = FreakVector<T>(m);
-    for(size_t j=0;j<k;++j) {
+    FreakMat<T> gamma = r.dot(alpha);
+    FreakMat<T> gammaColSum = gamma.sum(1);
+    FreakVector<T> gammaCol = gammaColSum.col(0);
+    gamma = gamma.div(gammaCol,1);
+    
+    FreakMat<T> gammaRowSum = gamma.sum(0);
+    FreakVector<T> nk = gammaRowSum.row(0);
+    FreakVector<T> rNk(nk);
+    std::cout<<"nk : "<<std::endl;
+    printD(nk);
+    alpha = nk/(1.0*n);
+    std::cout<<"alpha : "<<std::endl;
+    printD(alpha);
 
-        T rk = 0.0;
-        FreakVector<T> rMuTemp(m);
-        T rSigma2Temp = 0.0;
+    FreakMat<T> rNkDiag = FreakMat<T>::diag(rNk);
+    FreakMat<T> gammaT = gamma.transpose();
 
-        for(size_t i=0;i<n; ++i) {
-            rk = rk+r[i][j];
-            rMuTemp = rMuTemp + records[i] * r[i][j];
-            rSigma2Temp = rSigma2Temp + r[i][j]* records[i].distance(mu[j]);
-            
+    FreakMat<T> newMu = rNkDiag * gammaT * (*records);
+    loss = 0;
+    for(size_t i=0;i<mu.nRow;++i) {
+        for(size_t j=0;j<mu.nCol;++j){
+            loss += std::abs(mu.at(i,j) - newMu.at(i,j));
         }
-        stepLoss= stepLoss + assignAndCountLoss(mu[j], rMuTemp / rk,true);
-        stepLoss= stepLoss + assignAndCountLoss(sigma2[j], rSigma2Temp / rk);
-        stepLoss= stepLoss + assignAndCountLoss(alpha[j], rk/n);
     }
+    mu = newMu;
+
+    for(size_t i=0;i<k;++i) {
+        FreakVector<T> muRow = mu.row(i);
+        FreakMat<T> records_shift = *records - muRow;
+        FreakVector<T> gammaCol = gamma.col(i);
+        FreakMat<T> records_shitfT = records_shift.transpose();
+        std::cout<<"gammaDiag "<<i<<": "<<std::endl;
+        printD(gammaCol);
+        FreakMat<T> gammaRowDiag = FreakMat<T>::diag(gammaCol);
+        sigma2[i] = records_shitfT * gammaRowDiag * records_shift;
+        std::cout<<"sigma2 updated "<<i<<": "<<std::endl;
+        printF(sigma2[i].ptr(),m,m);
+        sigma2[i] = sigma2[i].dot(rNk[i]);
+    }
+    addMinCorr();
 }
 
 template <class T>
@@ -144,15 +199,22 @@ void FreakGMM<T>::run()
     do{
         exceptationStep();
         maximizationStep();
-        std::cout<<"Iteration : "<<i<<" loss sum : "<<stepLoss.sum()<<std::endl;
+        std::cout<<"Iteration : "<<i<<" loss sum : "<<loss<<std::endl;
         i++;
-        for(size_t i=0;i<mu.size();++i) {
-            printD(mu[i]);
-            std::cout<<sigma2[i]<<std::endl;
-            std::cout<<alpha[i]<<std::endl;
-        }
-    } while(stepLoss.sum() >= torelance);
+        printF(mu.ptr(),k,m);
+    } while(loss >= torelance);
 
+}
+template <class T>
+void FreakGMM<T>::addMinCorr()
+{
+    for(size_t i=0;i<k;++i) {
+        for(size_t j=0;j<m;++j) {
+            T& v = sigma2[i].at(j,j);
+            v+= minCov;
+            assert(v >0 );
+        }
+    }
 }
 
 typedef FreakGMM<> FreakGMMF;

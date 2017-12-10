@@ -1,4 +1,5 @@
 #include <iostream>
+
 #include <freakMatrix.h>
 #include <cstring>
 
@@ -31,6 +32,23 @@ int main(){
     printMat(tmat);
     FreakMat<float> mmat = mat * tmat;
     printMat(mmat);
+
+    FreakMat<float> matColSum = mat.sum(1);
+    cout<<"matsum : "<<endl;
+    printMat(matColSum);
+    FreakVector<float> matCol = matColSum.col(0);
+    cout<<"matP: "<<endl;
+    FreakMat<float> matP = mat.div(matCol,1);
+    printMat(matP);
+
+    FreakMat<float> matN = matP.sum(0);
+    cout<<"matN: "<<endl;
+    printMat(matN);
+
+    FreakVector<float> matR = matN.row(0);
+    matR = matR/mat.nRow;
+    //printD(matR);
+
     return 0;
 }
 

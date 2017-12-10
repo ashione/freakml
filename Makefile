@@ -2,7 +2,7 @@ CFLAGS = -g -Wall -fPIC -D_FILE_OFFSET_BITS=64 -std=c++11
 CXX = g++
 CC = gcc
 
-INCLUDE=-I./include
+INCLUDE=-I./include -I/usr/include/eigen3
 SRC = $(wildcard src/*.cpp)
 
 TARGET = ./lib/libfreak.so
