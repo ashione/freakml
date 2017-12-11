@@ -4,7 +4,7 @@ A toy of machine learning
 
 * LR v0.1 
 * K-means v0.1
-* EM & GMM
+* EM & GMM v0.1
 * Naive Bayes
 * KD Tree
 * Descion Tree
