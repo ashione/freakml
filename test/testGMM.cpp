@@ -40,22 +40,36 @@ int main(int argv,char* args[])
 
     }
     printF(src.ptr(),size,n);
-    
+
     size_t k = 3;
+
     FreakGMM<float> gmm(k,&src);
     gmm.run();
 
     for(size_t i=0;i<k;++i) {
-        //printD(gmm.mu.row(i));
-        //cout<<gmm.sigma2[i]<<endl;
+        printD(gmm.mu.row(i));
         cout<<gmm.alpha[i]<<endl;
     }
+    std::vector<FreakVectorF > dsc = freak::kmeans(src,k);
+    FreakMatF kMu(k,n);
+    for(size_t i=0;i<dsc.size();++i) {
+        printD(dsc[i]);
+        for(size_t j=0;j<n;++j) {
+            kMu.at(i,j) = dsc[i][j];
+        }
+    }
 
-    //std::vector<FreakVectorF > dsc = freak::kmeans(src,3);
+    FreakGMM<float> gmmK(kMu,&src);
+    gmmK.run();
 
-    //for(size_t i=0;i<dsc.size();++i) {
-    //    printD(dsc[i]);
-    //}
+    for(size_t i=0;i<k;++i) {
+        printD(gmmK.mu.row(i));
+        //cout<<gmm.sigma2[i]<<endl;
+        cout<<gmmK.alpha[i]<<endl;
+    }
+
+    
+
 
     return 0;
 }

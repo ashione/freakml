@@ -156,7 +156,8 @@ T* diag(const size_t nRow,const size_t nCol,T* mat)
         }
     }
     return diag;
-    /*
+
+    /* 
     T* diagMat = new T[nRow*nCol];
     std::memcpy(diagMat,mat,sizeof(T)*nRow*nCol);
 
@@ -174,27 +175,21 @@ T* diag(const size_t nRow,const size_t nCol,T* mat)
         }
 
         swap(diagMat+i*nCol,diagMat+index*nCol,nCol);
-        if(companyMat)
-            swap(companyMat+i*nCol,companyMat+index*nCol,nCol);
         for(size_t k=0;k<nRow;++k){
             T scale = diagMat[k*nCol + i] / diagMat[i*nCol+i] ;
             if ( k == i || abs(scale) < EPS ) continue;
             for(size_t j=0;j<nCol;++j) {
                 diagMat[k*nCol + j] -= diagMat[i*nCol+j] * scale;
             }
-            if (companyMat) {
-                for(size_t j=0;j<nCol;++j) 
-                    companyMat[k*nCol+j] -= companyMat[i*nCol+j] * scale;
-            }
         }
     }
 
-    printf("diagMat : \n");
-    printF(diagMat,nRow,nCol);
+    //printf("diagMat : \n");
+    //printF(diagMat,nRow,nCol);
         
 
     return diagMat;
-    */
+   */ 
 }
 
 template <class T>
@@ -289,10 +284,12 @@ void inverse(const size_t nRow, const size_t nCol, T* mat,T *data)
                 companyMat[k*nCol+j] -= coef * companyMat[i*nCol+j];
             }
         }
+        /*
         printf("mat: %d\n",i);
         printF(diagMat,nRow,nCol);
         printf("company: %d\n",i);
         printF(companyMat,nRow,nCol);
+        */
     }
 
     delete[] diagMat;
@@ -448,7 +445,7 @@ T* corr(const size_t nRow, const size_t nCol, T* mat, T* mu = NULL)
         matMu = mean(nRow,nCol,mat,true);
     }
 
-    printF(matMu,1,nCol);
+    //printF(matMu,1,nCol);
 
     T* matCorr = new T[nCol*nCol];
     for(size_t i = 0;i<nCol; ++i) {
@@ -462,8 +459,10 @@ T* corr(const size_t nRow, const size_t nCol, T* mat, T* mu = NULL)
 
         }
     }
+    /*
     printf("matCorr\n");
     printF(matCorr,nCol,nCol);
+    */
 
     if (!mu) {
         delete[] matMu;

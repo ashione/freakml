@@ -4,6 +4,7 @@
 #include <iostream>
 using namespace freak;
 
+
 std::vector<FreakVector<> > 
 freak::kmeans(const std::vector<FreakVector<> >& fvts, 
        size_t k,

@@ -258,9 +258,7 @@ FreakMat<T> FreakMat<T>::div(FreakVector<T>& t, size_t axis)
         for(size_t i=0;i<nRow;++i) {
             for(size_t j=0;j<nCol;++j) {
                 result.at(i,j) = at(i,j) / t[i];
-                std::cout<<at(i,j)<<" ";
             }
-            std::cout<<" div sum : "<<t[i]<<std::endl;
         }
 
     }
@@ -293,11 +291,8 @@ FreakMat<T> FreakMat<T>::sum(size_t axis)
         for(size_t i=0;i<nRow;++i) {
             T temp = 0;
             for(size_t j=0;j<nCol;++j) {
-                std::cout<<at(i,j)<<" ";
                 temp += at(i,j);
             }
-            std::cout<<"sum : "<<i<<" "<<temp<<std::endl;
-
             result.at(i,0) = temp;
         }
     }

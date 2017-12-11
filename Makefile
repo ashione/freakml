@@ -1,4 +1,4 @@
-CFLAGS = -g -Wall -fPIC -D_FILE_OFFSET_BITS=64 -std=c++11
+CFLAGS = -g -Wall -fPIC -std=c++11
 CXX = g++
 CC = gcc
 
@@ -32,7 +32,7 @@ TESTBIN_C   = $(patsubst $(TESTDIR)/%.c,$(BINDIR)/%.bin,$(filter %.c,$(TESTSRC))
 TESTEXE = $(TESTBIN_CPP) $(TESTBIN_C)
 
 
-all : $(TARGET)
+all : $(TARGET) 
 	
 $(TARGET) : pre
 	$(CXX) $(CFLAGS) -o $(TARGET) $(SRC)  $(LDFLAGS) $(INCLUDE)
@@ -45,7 +45,7 @@ pre :
 test : $(TESTEXE)
 
 $(BINDIR)/%.bin : $(OBJDIR)/%.o
-	$(CXX) $(CFLAGS) -o $@ $<  $(INCLUDE) $(LIBS)
+	$(CXX) $(CFLAGS) -o $@ $^  $(INCLUDE) $(LIBS)
 
 $(OBJDIR)/%.o : $(TESTDIR)/%.cpp
 	$(CXX) $(CFLAGS) -o $@ -c $^ $(INCLUDE) $(LIBS)
