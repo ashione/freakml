@@ -7,7 +7,7 @@ SRC = $(wildcard src/*.cpp)
 
 TARGET = ./lib/libfreak.so
 LDFLAGS = -shared
-LIBS = -L./lib -lstdc++ -lfreak
+LIBS = -L./lib -lstdc++ -lfreak -lglog -lgflags -lpthread
 
 BINDIR  = bin
 OBJDIR = bin/obj

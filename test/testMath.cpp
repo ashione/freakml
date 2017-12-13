@@ -1,5 +1,7 @@
 #include <iostream>
+
 #include <freakMath.h>
+#include <freakConfig.h>
 
 using namespace std;
 using namespace freak;
@@ -36,7 +38,9 @@ void testInvMatrix(float* mat,size_t n)
     delete[] mulMat;
 }
 
-int main(){
+int main(int argc,char* argv[]){
+    REGISTER_LOG(argv[0]);
+    
     //float mat[]={2,3,1,2};
     float mat[] = {7,8 ,1, 3, 4,
     1,2.3,7.9,5.6,1988,
@@ -75,7 +79,7 @@ int main(){
     randu(rad,5);
     size_t* argIndex = argSort(rad,5);
     randu(rad2,5);
-    cout<<"randu : "<<endl;
+    ILOG<<"randu : ";
     for(size_t i=0;i<5;++i) {
         cout<<argIndex[i]<<" "<<rad[i]<<" "<<rad2[i]<<" ";
     }

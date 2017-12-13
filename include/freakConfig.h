@@ -1,6 +1,8 @@
 #ifndef __FREAK_CONFIG_H__
 #define __FREAK_CONFIG_H__
 
+#include <freakLog.h>
+
 #include <cassert> 
 #include <cmath>
 #include <cstring>
