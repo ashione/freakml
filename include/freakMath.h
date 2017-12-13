@@ -508,6 +508,59 @@ T* corrCoef(const size_t nRow, const size_t nCol, T* mat, T* mu = NULL)
 
 }
 
+template <class T>
+size_t* argSort(T* A, const size_t nRow)
+{
+    std::vector<std::pair<T,size_t> > idx(nRow);
+
+    for(size_t i=0;i<nRow;++i) {
+        idx[i] = std::make_pair(A[i],i);
+    }
+
+    auto argCompare = [](std::pair<T,size_t>& a,std::pair<T,size_t>& b)
+    {
+        return a.first < b.first;
+    };
+
+    std::sort(idx.begin(),idx.end(),argCompare);
+
+    size_t* argIndex = new size_t[nRow];
+    for(size_t i=0;i<nRow;++i){
+        argIndex[idx[i].second] = i;
+    }
+
+    return argIndex;
+}
+
+template <class T>
+T* spearmanCorrCoef(const size_t nRow, const size_t nCol, T* mat)
+{
+    T* matCorr = new T[nCol*nCol];
+    size_t** argIndexCols = new size_t* [nCol];
+    T* data = new T[nRow];
+    for(size_t i=0;i<nCol;++i) {
+        for(size_t j=0;j<nRow;++j) 
+            data[j] = mat[j*nCol + i];
+        argIndexCols[i] = argSort(data,nRow);
+    }
+
+    for(size_t i=0;i<nCol;++i) {
+        matCorr[i*nCol +i] = 1.0;
+        for(size_t j=i+1;j<nCol;++j) {
+            T s=0.0;
+            for(size_t k=0;k<nRow;++k) {
+                T t = argIndexCols[i][k]*1.0 - argIndexCols[j][k];
+                s+=t*t;
+            }
+            matCorr[i*nCol+j] = 1.0 - s*6.0/(nRow*(nRow*nRow-1));
+            matCorr[j*nCol+i] = matCorr[i*nCol + j];
+
+        }
+    }
+
+    return matCorr;
+}
+
 }
 
 #endif /* __FREAK_MATH_H__ */

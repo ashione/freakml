@@ -61,18 +61,23 @@ int main(){
     printMat(m,m,matCorr);
     float *matCof = corrCoef(n,m,cMat);
     printMat(m,m,matCof);
+
+    float *matSCof = spearmanCorrCoef(n,m,cMat);
+    printMat(m,m,matSCof);
     
     delete[] matCorr;
     delete[] matCof;
     delete[] cMat;
+    delete[] matSCof;
 
     float* rad =new float[5];
     float* rad2 =new float[5];
     randu(rad,5);
+    size_t* argIndex = argSort(rad,5);
     randu(rad2,5);
     cout<<"randu : "<<endl;
     for(size_t i=0;i<5;++i) {
-        cout<<rad[i]<<" "<<rad2[i]<<" ";
+        cout<<argIndex[i]<<" "<<rad[i]<<" "<<rad2[i]<<" ";
     }
     cout<<endl;
     swap(rad,rad2,5);
