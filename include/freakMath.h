@@ -85,14 +85,10 @@ T sqrt(const T& t, B isArray) {
 }
 
 template <class T>
-void log(T &t) {
-    t = std::log(t);
-}
-
-template <class T>
-T log(T &t) {
+T log(T t) {
     return std::log(t);
 }
+
 
 
 template <class T>
@@ -109,11 +105,6 @@ T abs(T& t,B isArray)
         result[i] = abs(result[i]);
     }
     return result;
-}
-
-template <class T>
-T log(const T t) {
-    return std::log(t);
 }
 
 template <class T>

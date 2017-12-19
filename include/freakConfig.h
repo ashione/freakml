@@ -10,6 +10,8 @@
 #define DATUM_TYPE float
 #define LABEL_TYPE int
 
+#define UInt int
+
 #define EPS (1e-10)
 
 #endif /* __FREAK_CONFIG_H__ */
