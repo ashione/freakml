@@ -29,8 +29,8 @@ int main() {
     x2.apply(freak::exp);
     printD(x2);
 
-    x1.apply(freak::log);
-    printD(x1);
+    //x1.apply(freak::log);
+    //printD(x1);
 
     cout<<x1.sum()<<endl;
 }
