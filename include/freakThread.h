@@ -52,7 +52,7 @@ class FreakCond {
        int destroy(void);
        int wait(FreakMutexPtr);
        int waitUntil(FreakMutexPtr,unsigned long long);
-       void singal();
+       void signal();
        void broadCast();
 
 };

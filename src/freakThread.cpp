@@ -176,7 +176,7 @@ FreakCond::wait(FreakMutexPtr m)
 }
 
 void
-FreakCond::singal()
+FreakCond::signal()
 {
     pthread_cond_signal(&cond);
 }

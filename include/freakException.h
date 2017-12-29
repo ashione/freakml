@@ -1,6 +1,8 @@
 #include <exception>
 #include <string>
 
+namespace freak {
+
 #define FreakException(name) \
 class Freak ##name : public std::exception \
 {                                     \
@@ -14,4 +16,10 @@ class Freak ##name : public std::exception \
         }                                   \
 };
 
+FreakException(ThreadException)
 FreakException(ThreadInitException)
+FreakException(ThreadPoolInitException)
+FreakException(ThreadPoolExpandException)
+FreakException(ThreadPoolException)
+
+}

@@ -40,7 +40,7 @@ int main()
         FreakThreadPtr t = new FreakThread(true,printInfo,__func__,true,(void*)(array+i));
         threadArray[i] = t;
     }
-    cp->singal();
+    cp->signal();
     for(int i=0;i<n;++i) {
         threadArray[i]->join();
         delete threadArray[i];
