@@ -18,13 +18,14 @@ void jobFunc(void* data)
     }
 }
 
+bool exit_flag = false;
+
 void poolLog(void *data)
 {
     FreakThreadPoolPtr pool = static_cast<FreakThreadPoolPtr>(data);
-    while(true) {
+    while(!exit_flag) {
         printf("pool currentWorkerSize : %lu, freeWorkerSize : %lu\n",pool->currentWorkerSize(),pool->freeWorkerSize());
         usleep(1e5);
-
     }
 
 }
@@ -45,6 +46,7 @@ main()
     }
 
     usleep(1e7);
+    exit_flag = true;
 
     printf("main thread exit\n");
 
