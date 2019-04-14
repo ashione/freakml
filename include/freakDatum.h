@@ -282,9 +282,8 @@ T* FreakVector<T>::ptr(size_t i)
 template <class T>
 void printD(const FreakVector<T>& t){
     for(size_t i=0; i<t.size(); ++i)  {
-        std::cout<<t.getByIndex(i)<<" ";
+        ILOG <<t.getByIndex(i);
     }
-    std::cout<<std::endl;
 }
 
 }

@@ -89,6 +89,10 @@ T log(T t) {
     return std::log(t);
 }
 
+template <class T>
+void transform_log(T& t) {
+    t = std::log(t);
+}
 
 
 template <class T>

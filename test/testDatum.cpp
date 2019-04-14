@@ -25,12 +25,11 @@ int main() {
     printD(x2);
     printD(x1);
 
-    //cout<<x2.prod(y1)<<endl;
     x2.apply(freak::exp);
     printD(x2);
 
-    x1.apply(freak::log);
+    x1.apply(freak::transform_log);
     printD(x1);
 
-    cout<<x1.sum()<<endl;
+    ILOG << x1.sum();
 }

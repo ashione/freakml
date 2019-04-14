@@ -24,13 +24,6 @@ void freak::train(FreakLR<DATUM_TYPE,LABEL_TYPE>* freakLR,DATUM_TYPE lr, size_t 
 
             b = b + delta*b;
             freakLR->w->setB(b);
-            /*
-            for(size_t j =0 ;j<v_n ; j++) {
-                std::cout<<freakLR->w->getByIndex(j)<<" ";
-            }
-            std::cout<<b<<std::endl;
-            std::cout<<"iter : "<<iter<<" "<<delta<<std::endl;
-            */
         }
     }
 }

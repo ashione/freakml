@@ -12,7 +12,7 @@ T entropy(T* p, UInt k)
     T sumE = 0.0;
     for(UInt i=0;i<k;++i) {
         T pt = *(p+i);
-        sumE += -pt*log(pt);
+        sumE += -pt*freak::log(pt);
     }
     return sumE;
 }
